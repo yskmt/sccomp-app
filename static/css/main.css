@@ -1,0 +1,42 @@
+#slider {
+    margin: 10px;
+}
+.ui-slider-horizontal {
+    height: 8px;
+    width: 236px;
+}
+.ui-slider .ui-slider-handle {
+    height: 15px;
+    width: 5px;
+    padding-left: 5px;
+}
+
+#canvascolor input {
+    height:50px;
+    width:50px;
+}
+
+
+#contentBox {
+    margin: 0 auto;
+    width: 100%;
+}
+
+
+#contentBox .column {
+    float: left;
+    margin: 0;
+    width: 30%;
+}
+
+#contentBox .column2 {
+    float: right;
+    margin: 0;
+    width: 70%;
+}
+
+ol { padding-left: 1em; }
+
+body{
+    font-family: sans-serif;
+}

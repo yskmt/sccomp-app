@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title> Scene Completion Demo </title>
+
+        <link rel="stylesheet" href="{{ url_for('static', filename ='css/jquery-ui.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename ='css/main.css') }}" type="text/css" media="all">
+        <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='js/draw.js') }}"></script>
+    </head>
+
+    <body>
+
+        <div id="contentBox">
+
+            <div class="column">
+                <canvas id="myCanvas" width="256" height="256"></canvas>
+                <div id="menu">
+                    <div id="slider"></div>
+                    <br>        
+                    <select class="scene">
+                        <option value="Opencountry">country</option>
+                        <option value="coast">coast</option>
+                        <option value="forest">forest</option>
+                        <option value="highway">highway</option>
+                        <option value="inside_city">inside city</option>
+                        <option value="mountain">mountain</option>
+                        <option value="street">street</option>
+                        <option value="tallbuilding">tall building</option>
+                    </select>
+
+                    <select class="images">
+                        <option></option>
+                    </select>
+
+                    <button id="clear_button">Clear</button>
+                    <button id="save_button">Run!</button>
+
+                </div>
+                <ol>
+                    <li>Select the scenes and images to work with.</li>
+                    <li>Move the slider to change the brush size.</li>
+                    <li>Specify the region to be complemented.</li>
+                    <li>Click "Run" to start the scene completion.</li>
+                    <li>Click "Clear" to clear the region.</li>
+                </ol>
+            </div>
+            <div class="column2">
+                <div id="result_imgs"></div>
+            </div>
+        </div>
+    </body>
+
+</html>
