@@ -1,0 +1,7 @@
+# The following commands are executed in alpha order
+container_commands:
+  # TODO: replace with an initialization script
+  01createfolder:
+     command: "mkdir -p /var/lib/migration-logs"
+#  99customize:
+#    command: "scripts/customize.sh"
