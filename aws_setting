@@ -1,0 +1,16 @@
+# ref 1: http://blog.datapolitan.com/2015/08/25/installing-matplotlib-and-pandas-on-amazon-ec2/
+# ref 2: http://stackoverflow.com/questions/18732250/installing-numpy-on-amazon-ec2 
+
+
+sudo yum install git
+sudo yum install gcc-c++ python27-devel atlas-sse3-devel lapack-devel
+sudo yum install python-devel libpng-devel freetype-devel 
+sudo yum install libjpeg-devel
+
+sudo pip install numpy
+sudo pip install matplotlib pandas
+sudo pip install scipy
+sudo pip install scikit-learn
+sudo pip install flask
+sudo pip install scikit-image
+sudo pip install pyamg

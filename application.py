@@ -7,38 +7,37 @@ from flask import Flask, render_template, request, url_for, redirect, jsonify
 import sys
 import os
 
-scc_dir = '/Users/ysakamoto/Projects/sccomp'
-sys.path.append(scc_dir)
+scc_dir = 'static'
+# sys.path.append(scc_dir)
 from os.path import join as opj
 from skimage import io
-from sccomp import load_gists, load_queries, get_gist, get_matches
+from src.sccomp import load_gists, load_queries, get_gist, get_matches
 
-gists_db_name = opj(scc_dir, 'dbs/gist_data.npy')
-f_db_name = opj(scc_dir, 'dbs/file_names.npy')
+
+gists_db_name = opj(scc_dir, 'data/dbs/gist_data.npy')
+f_db_name = opj(scc_dir, 'data/dbs/file_names.npy')
 data_dir = opj(scc_dir, 'data/scene_database/')
 img_dirs = [d for d in os.listdir(data_dir)
             if os.path.isdir(os.path.join(data_dir, d))]
 param_name = opj(scc_dir, 'gistparams')
 
 
-
-
 # Initialize the Flask application
-app = Flask(__name__)
+application = Flask(__name__)
 
 # Define a route for the default URL, which loads the form
 
 
-@app.route('/')
+@application.route('/')
 def form():
     return render_template('canvas.html')
 
-# @app.route('/hello/test')
+# @application.route('/hello/test')
 # def test():
 #     return "Hello World!"
 
 
-# @app.route('/hello', methods=["GET"])
+# @application.route('/hello', methods=["GET"])
 # def results(mst, matches):
 #     return render_template('results.html', mst=mst, matches=matches)
 
@@ -46,7 +45,7 @@ def form():
 # Define a route for the action of the form, for example '/hello/'
 # We are also defining which type of requests this route is
 # accepting: POST requests in this case
-@app.route('/hello', methods=['POST'])
+@application.route('/hello', methods=['POST'])
 def hello():
     if request.method=='POST':
 
@@ -77,9 +76,9 @@ def hello():
                        m3=matches[3], m4=matches[4], m5=matches[5])
 
     
-# Run the app :)
+# Run the application :)
 if __name__ == '__main__':
-    app.run(debug=True)
+    application.run(debug=True)
         # host="0.0.0.0",
         # port=int("80")
     # )
