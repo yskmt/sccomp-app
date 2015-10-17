@@ -43,26 +43,30 @@ def hello():
         fh.write(img_data.decode('base64'))
         fh.close()
 
+        print "loading database..."
         gist_data, file_names, param = load_gists(gists_db_name, f_db_name, param_name)
         
+        print "loading queries..."
         query_name, img_query, img_files \
             = load_queries(img_dirs, data_dir, 0, mask_name,
                            query_name=request.form['img'].split('/')[-1])
 
+        print "saving mask image..."
         img_mask = io.imread(mask_name, as_grey=True)
         img_mask = io.imread(mask_name)
         img_mask = img_mask[:,:,3]
         io.imsave(mask_name, img_mask)
         
+        print "calculating gist of the query..."
         gist, block_weight = get_gist(query_name, img_query, img_mask, param)
 
+        print "calculating the match and blending..."
         mst_name, _, matches \
             = get_matches(gist, gist_data, block_weight,
                           file_names, img_mask, query_name,
                           mask_name, plot_figure=False, save_dir='static/results')
 
-        # mst_name = mask_name
-        # matches = [[] for i in range(6)]
+        print "returning..."
         return jsonify(mst=mst_name, m0=matches[0], m1=matches[1], m2=matches[2],
                        m3=matches[3], m4=matches[4], m5=matches[5])
 

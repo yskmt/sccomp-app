@@ -1,4 +1,5 @@
 import os
+import sys
 from os.path import join as opj
 from pdb import set_trace as st
 
@@ -187,9 +188,13 @@ def get_matches(gist, gist_data, block_weight, file_names, img_mask,
         img_mask, img_src, offset_adj \
             = create_mask(img_mask.astype(np.float64),
                           img_target, img_src, offset=offset)
-
-        img_sc = poisson_blend(img_mask, img_src, img_target, method='normal',
-                               offset_adj=offset)
+        
+        try:
+            img_sc = poisson_blend(img_mask, img_src, img_target, method='normal',
+                                   offset_adj=offset)
+        except:
+            print "Unexpected error:", sys.exc_info()[0]
+            raise
 
         if plot_figure:
             plt.imshow(img_sc)
