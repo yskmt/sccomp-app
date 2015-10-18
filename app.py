@@ -95,8 +95,12 @@ def calculate(message):
                                            query_name,
                                            save_dir='static/results/'))
             print sc_names[-1]
+
+            time.sleep(1)
             emit('completed image url', {'img_url': sc_names[-1],
-                                         'status': len(matches)-i})
+                                         'status': i+2})
+
+        print 'Scene completion done!'
 
 
 @socketio.on('connect', namespace='/scc')

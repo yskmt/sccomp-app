@@ -11,8 +11,11 @@ socket.on('connect', function() {
 socket.on('completed image url', function(msg) {
     console.log(msg.img_url + " received");
     $('#result_imgs').append('<img src="' + msg.img_url + '" />');
-    if (msg.status == 1){
-        $('#status').remove();
+    $('#status').empty();
+    $('#status').append('<br>Calculating (' + msg.status + '/6) ...');
+
+    if (msg.status == 7){
+        $('#status').empty();
     }
     return false;
 });
@@ -124,7 +127,7 @@ function runCalc(target_img){
     var d = can.toDataURL("image/png");
     console.log(target_img)
     $('#result_imgs').empty();
-    $('#status').append("<br>Calculating...");
+    $('#status').append("<br>Calculating (1/6)...");
 
     socket.emit('mask image',
                 {type: "POST",
