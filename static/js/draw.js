@@ -43,7 +43,7 @@ window.addEventListener("load", function(){
         var context = can.getContext("2d");
         context.strokeStyle = drawData.penColor;
         context.lineWidth = drawData.brushSize;
-        context.lineJoin= "round";  // 連結部分を丸にする
+        context.lineJoin= "round";
         context.lineCap = "round";
         context.beginPath();
         context.moveTo(drawData.oldX, drawData.oldY);
@@ -62,13 +62,14 @@ window.addEventListener("load", function(){
     window.addEventListener("mouseup", function(){  // キャンバスでなくウィンドウに
         drawData.drawFlag = false;
     }, true);
-    // ブラシサイズの設定を行うスライダー
+    
+    // Slider to change brush size
     $("#slider").slider({
         min: 0,
-        max: 100, // ブラシの最大サイズ
-        value : 1,  // 最初のブラシサイズ
+        max: 100,
+        value : 20,
         slide : function(evt, ui){
-            drawData.brushSize = ui.value;  // ブラシサイズを設定
+            drawData.brushSize = ui.value;
         }
     });
 
@@ -137,37 +138,6 @@ function runCalc(target_img){
                      img: target_img
                  }});
 
-    // $.ajax({
-    //     type: "POST",
-    //     url: "/calculate",
-    //     data: { 
-    //         imgBase64: d, img: target_img
-    //     }
-    // });
-
     console.log("POST message sent.")
-// .done(function(results) {
-
-//         console.log(results['mst']);
-//         console.log(results['m0']);
-//         console.log(results['m1']);
-//         console.log(results['m2']);
-//         console.log(results['m3']);
-//         console.log(results['m4']);
-//         console.log(results['m5']);
-
-//         console.log('mask image saved'); 
-        
-//         $('#result_imgs').empty();
-//         // $('#result_imgs').append('<img src="' + results['mst'] + '" />'); 
-//         $('#result_imgs').append('<img src="' + results['m0'] + '" />'); 
-//         $('#result_imgs').append('<img src="' + results['m1'] + '" />'); 
-//         $('#result_imgs').append('<img src="' + results['m2'] + '" />'); 
-//         $('#result_imgs').append('<img src="' + results['m3'] + '" />'); 
-//         $('#result_imgs').append('<img src="' + results['m4'] + '" />'); 
-//         $('#result_imgs').append('<img src="' + results['m5'] + '" />'); 
-
-
-//     });
 
 }
