@@ -8,10 +8,12 @@
         <link rel="stylesheet" href="{{ url_for('static', filename ='css/main.css') }}" type="text/css" media="all">
         <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/draw.js') }}"></script>
     </head>
 
     <body>
+        <div id="log"></div>
 
         <div id="contentBox">
 
@@ -36,7 +38,7 @@
                     </select>
 
                     <button id="clear_button">Clear</button>
-                    <button id="save_button">Run!</button>
+                    <button id="run_button">Run!</button>
 
                 </div>
                 <ol>
@@ -49,6 +51,7 @@
             </div>
             <div class="column2">
                 <div id="result_imgs"></div>
+                <div id="status"></div>
             </div>
         </div>
     </body>

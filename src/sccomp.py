@@ -61,7 +61,7 @@ def load_gists(gists_db_name, f_db_name, param_name):
     gist_data = np.load(gists_db_name)
     file_names = np.load(f_db_name)
     gist_data = gist_data.reshape((2688, 512)).T
-    
+
     try:
         with open(param_name, 'r') as f:
             param = pickle.load(f)
@@ -164,52 +164,61 @@ def get_matches(gist, gist_data, block_weight, file_names, img_mask,
     img_mask, _, offset_adj \
         = create_mask(img_mask.astype(np.float64),
                       img_target, img_mask, offset=offset)
-    img_sc = poisson_blend(img_mask, 1-img_mask, img_target,
+
+    return fn_sorted, img_mask, img_target
+
+
+def scene_complete(fn_src, img_mask, img_target, query_name,
+                   offset=(0, 0),
+                   plot_figure=False, save_dir=None):
+    """
+    Complete the scene
+    """
+
+    print fn_src
+    img_src = io.imread(fn_src).astype(np.float64)
+
+    img_mask, img_src, offset_adj \
+        = create_mask(img_mask.astype(np.float64),
+                      img_target, img_src, offset=offset)
+
+    img_sc = poisson_blend(img_mask, img_src, img_target, method='normal',
+                           offset_adj=offset)
+
+    if plot_figure:
+        plt.imshow(img_sc)
+        plt.show()
+
+    if save_dir is not None:
+        sc_name = '%s+%s.jpg' % (
+            query_name.split('/')[-1].split('.jpg')[0],
+            fn_src.split('/')[-1].split('.jpg')[0])
+        sc_name = opj(save_dir, sc_name)
+        io.imsave(sc_name, img_sc)
+
+    return sc_name
+
+
+def mask_complete(img_mask, img_target, query_name, save_dir=None,
+                  plot_figure=False):
+    """
+    Scene completion with mask
+    """
+
+    img_sc = poisson_blend(img_mask, 1 - img_mask, img_target,
                            method='src', offset_adj=(0, 0))
 
-    mst_name =  query_name.split('/')[-1].split('.jpg')[0]
-    mst_name = opj(save_dir, mst_name+'mask.jpg')
-    
+    mst_name = query_name.split('/')[-1].split('.jpg')[0]
+    mst_name = opj(save_dir, mst_name + 'mask.jpg')
+
     if plot_figure:
         print '\nOriginal image with mask.'
         plt.imshow(img_sc)
         plt.show()
     if save_dir is not None:
         io.imsave(mst_name, img_sc)
-        
-    print '\nCompleted images from 1st to 5th choices:'
-    sc_names = []
-    for i in range(len(fn_sorted)):
-        # img_target = io.imread(query_name).astype(np.float64)
-        print fn_sorted[i]
-        img_src = io.imread(fn_sorted[i]).astype(np.float64)
-        # img_mask = io.imread(mask_name, as_grey=True)
 
-        img_mask, img_src, offset_adj \
-            = create_mask(img_mask.astype(np.float64),
-                          img_target, img_src, offset=offset)
-        
-        try:
-            img_sc = poisson_blend(img_mask, img_src, img_target, method='normal',
-                                   offset_adj=offset)
-        except:
-            print "Unexpected error:", sys.exc_info()[0]
-            raise
-
-        if plot_figure:
-            plt.imshow(img_sc)
-            plt.show()
-
-        if save_dir is not None:
-            sc_name = '%s+%s.jpg' %(
-                query_name.split('/')[-1].split('.jpg')[0],
-                fn_sorted[i].split('/')[-1].split('.jpg')[0])
-            sc_name = opj(save_dir, sc_name)
-            io.imsave(sc_name, img_sc)
-            sc_names.append(sc_name)
-            
-    return mst_name, fn_sorted, sc_names
-
+    return mst_name
 
 
 if __name__ == "__main__":
@@ -225,14 +234,14 @@ if __name__ == "__main__":
     param_name = '../static/data/gistparams'
 
     create_gist_database(data_dir, img_dirs)
-    
-    gist_data, file_names, param = load_gists(gists_db_name, f_db_name, param_name)
+
+    gist_data, file_names, param = load_gists(
+        gists_db_name, f_db_name, param_name)
 
     # for i in range(len(file_names)):
-    #     file_names[i] = file_names[i].replace('/Users/ysakamoto/Projects/sccomp/data', 
+    #     file_names[i] = file_names[i].replace('/Users/ysakamoto/Projects/sccomp/data',
     #                                           '/home/ubuntu/sccomp-app/static')
     # np.save(f_db_name, file_names)
-
 
     # ask for the image number to work with
     print "Choose the image number"
@@ -245,8 +254,19 @@ if __name__ == "__main__":
 
     gist, block_weight = get_gist(query_name, img_query, img_mask, param)
 
-    mst_name, sc_names, matches = get_matches(gist, gist_data, block_weight,
-                                              file_names, img_mask, query_name,
-                                              mask_name, save_dir='', plot_figure=False)
+    matches, img_mask, img_target \
+        = get_matches(gist, gist_data, block_weight,
+                      file_names, img_mask, query_name,
+                      mask_name, save_dir='')
+
+    mst_name = mask_complete(img_mask, img_target, query_name, save_dir='')
+    print '\nMasked image:', mst_name
+
+    print '\nCompleted images from 1st to 5th choices:'
+    sc_names = []
+    for i in range(len(matches)):
+        sc_names.append(scene_complete(matches[i], img_mask, img_target,
+                                       query_name,
+                                       save_dir=''))
 
     # show_gist(gd, param)

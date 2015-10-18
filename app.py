@@ -1,16 +1,30 @@
-# We need to import request to access the details of the POST request
-# and render_template, to render our templates (form and response)
-# we'll use url_for to get some URLs for the app on the templates
-from flask import Flask, render_template, request, url_for, redirect, jsonify
+"""
+app.py
 
+Demo to show the scene completion algorithm.
+
+"""
 
 import sys
 import os
-
+import time
 from os.path import join as opj
-from skimage import io
-from src.sccomp import load_gists, load_queries, get_gist, get_matches
 
+from gevent import monkey
+monkey.patch_all()
+
+from threading import Thread
+from flask import (Flask, render_template, session, request, url_for,
+                   redirect, jsonify)
+from flask.ext.socketio import SocketIO, emit, join_room, leave_room, \
+    close_room, disconnect
+
+from skimage import io
+from src.sccomp import (load_gists, load_queries, get_gist,
+                        get_matches, mask_complete, scene_complete)
+
+
+# Globals
 scc_dir = 'static/data'
 gists_db_name = opj(scc_dir, 'dbs/gist_data.npy')
 f_db_name = opj(scc_dir, 'dbs/file_names.npy')
@@ -19,26 +33,28 @@ img_dirs = [d for d in os.listdir(data_dir)
             if os.path.isdir(os.path.join(data_dir, d))]
 param_name = opj(scc_dir, 'gistparams')
 
-
-# Initialize the Flask application
+# Initialize the Flask/SocketIO application
 app = Flask(__name__)
+app.debug = True
+app.config['SECRET_KEY'] = 'secret!'
+socketio = SocketIO(app)
+thread = None
 
 # Define a route for the default URL, which loads the form
-
-
 @app.route('/')
 def form():
     return render_template('canvas.html')
 
-# Define a route for the action of the form, for example '/hello/'
-# We are also defining which type of requests this route is
-# accepting: POST requests in this case
-@app.route('/hello', methods=['POST'])
-def hello():
-    if request.method=='POST':
+# Get the mask image from socketio and send back the completed image
+# urls
+@socketio.on('mask image', namespace='/scc')
+def calculate(message):
+    if message['type'] == 'POST':
 
         mask_name = 'mask.png'
-        img_data = request.form['imgBase64'].split('base64,')[1]
+        # img_data = request.form['imgBase64'].split('base64,')[1]
+        img_data = message['data']['imgBase64'].split('base64,')[1]
+        
         fh = open(mask_name, "wb")
         fh.write(img_data.decode('base64'))
         fh.close()
@@ -49,7 +65,8 @@ def hello():
         print "loading queries..."
         query_name, img_query, img_files \
             = load_queries(img_dirs, data_dir, 0, mask_name,
-                           query_name=request.form['img'].split('/')[-1])
+                           query_name=message['data']['img'].split('/')[-1])
+                           # query_name=request.form['img'].split('/')[-1])
 
         print "saving mask image..."
         img_mask = io.imread(mask_name, as_grey=True)
@@ -61,19 +78,41 @@ def hello():
         gist, block_weight = get_gist(query_name, img_query, img_mask, param)
 
         print "calculating the match and blending..."
-        mst_name, _, matches \
+        matches, img_mask, img_target \
             = get_matches(gist, gist_data, block_weight,
                           file_names, img_mask, query_name,
                           mask_name, plot_figure=False, save_dir='static/results')
 
-        print "returning..."
-        return jsonify(mst=mst_name, m0=matches[0], m1=matches[1], m2=matches[2],
-                       m3=matches[3], m4=matches[4], m5=matches[5])
+        # mst_name = mask_complete(img_mask, img_target, query_name, save_dir='')
+        # print '\nMasked image:', mst_name
+        mst_name = ''
+
+        print '\nCompleted images from 1st to 5th choices:'
+        sc_names = []
+        for i in range(len(matches)):
+            sc_names.append(scene_complete(matches[i],
+                                           img_mask, img_target,
+                                           query_name,
+                                           save_dir='static/results/'))
+            print sc_names[-1]
+            emit('completed image url', {'img_url': sc_names[-1],
+                                         'status': len(matches)-i})
+
+
+@socketio.on('connect', namespace='/scc')
+def test_connect():
+    emit('app response', {'data': 'Connected', 'count': 0})
+
+@socketio.on('app event', namespace='/scc')
+def test_message(message):
+    print message['data']
+    emit('app response',
+         {'data': message['data']})
 
     
 # Run the app :)
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app)
         # host="0.0.0.0",
         # port=int("80")
     # )

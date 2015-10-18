@@ -1,12 +1,32 @@
+namespace = '/scc'; 
+
+var socket = io.connect('http://' + document.domain + ':' 
+                        + location.port + namespace);
+
+socket.on('connect', function() {
+    socket.emit('app event', {data: 'I\'m connected!'});
+    return false;
+});
+
+socket.on('completed image url', function(msg) {
+    console.log(msg.img_url + " received");
+    $('#result_imgs').append('<img src="' + msg.img_url + '" />');
+    if (msg.status == 1){
+        $('#status').remove();
+    }
+    return false;
+});
+
+
 window.addEventListener("load", function(){
 
     $('#myCanvas').css('background-color', 'rgba(255, 255, 255, 1)');
 
     var drawData = {
         drawFlag : false,
-        oldX : 0, // 直前のX座標を保存するためのもの
-        oldY : 0, // 直前のY座標を保存するためのもの
-        brushSize : 1,  // ブラシサイズ
+        oldX : 0, // save x-position
+        oldY : 0, // save y-position
+        brushSize : 1,
         penColor : "rgba(0,0,0, 1)"
     }
     var can = document.getElementById("myCanvas");
@@ -83,8 +103,10 @@ window.addEventListener("load", function(){
     $("#clear_button").click(function(){
         ctx.clearRect(0, 0, can.width, can.height);
     });
-    $("#save_button").click(function(){
-        saveData(target_img);
+    $("#run_button").click(function(){
+        socket.emit('app event', {data: 'run_button_clicked'});
+        runCalc(target_img);
+        return false;
     });
 
 }, true);
@@ -96,41 +118,53 @@ function loadBackGround(img_dir) {
                        "url("+img_dir+")");
 }
 
-function saveData(target_img){
+
+function runCalc(target_img){
     var can = document.getElementById("myCanvas");
     var d = can.toDataURL("image/png");
     console.log(target_img)
     $('#result_imgs').empty();
-    $('#result_imgs').append("<br>Calculating...");
+    $('#status').append("<br>Calculating...");
 
-    $.ajax({
-        type: "POST",
-        url: "/hello",
-        data: { 
-            imgBase64: d, img: target_img
-        }
-    }).done(function(results) {
+    socket.emit('mask image',
+                {type: "POST",
+                 url: "/calculate",
+                 data: { 
+                     imgBase64: d, 
+                     img: target_img
+                 }});
 
-        console.log(results['mst']);
-        console.log(results['m0']);
-        console.log(results['m1']);
-        console.log(results['m2']);
-        console.log(results['m3']);
-        console.log(results['m4']);
-        console.log(results['m5']);
+    // $.ajax({
+    //     type: "POST",
+    //     url: "/calculate",
+    //     data: { 
+    //         imgBase64: d, img: target_img
+    //     }
+    // });
 
-        console.log('mask image saved'); 
+    console.log("POST message sent.")
+// .done(function(results) {
+
+//         console.log(results['mst']);
+//         console.log(results['m0']);
+//         console.log(results['m1']);
+//         console.log(results['m2']);
+//         console.log(results['m3']);
+//         console.log(results['m4']);
+//         console.log(results['m5']);
+
+//         console.log('mask image saved'); 
         
-        $('#result_imgs').empty();
-        // $('#result_imgs').append('<img src="' + results['mst'] + '" />'); 
-        $('#result_imgs').append('<img src="' + results['m0'] + '" />'); 
-        $('#result_imgs').append('<img src="' + results['m1'] + '" />'); 
-        $('#result_imgs').append('<img src="' + results['m2'] + '" />'); 
-        $('#result_imgs').append('<img src="' + results['m3'] + '" />'); 
-        $('#result_imgs').append('<img src="' + results['m4'] + '" />'); 
-        $('#result_imgs').append('<img src="' + results['m5'] + '" />'); 
+//         $('#result_imgs').empty();
+//         // $('#result_imgs').append('<img src="' + results['mst'] + '" />'); 
+//         $('#result_imgs').append('<img src="' + results['m0'] + '" />'); 
+//         $('#result_imgs').append('<img src="' + results['m1'] + '" />'); 
+//         $('#result_imgs').append('<img src="' + results['m2'] + '" />'); 
+//         $('#result_imgs').append('<img src="' + results['m3'] + '" />'); 
+//         $('#result_imgs').append('<img src="' + results['m4'] + '" />'); 
+//         $('#result_imgs').append('<img src="' + results['m5'] + '" />'); 
 
 
-    });
+//     });
 
 }
