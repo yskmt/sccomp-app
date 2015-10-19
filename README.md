@@ -8,6 +8,8 @@ gunicorn --worker-class socketio.sgunicorn.GeventSocketIOWorker -t 120 app:app
 
 * Flask
 * Flask-SocketIO
+    - http://flask-socketio.readthedocs.org/en/latest/
+    - http://blog.miguelgrinberg.com/post/easy-websockets-with-flask-and-gevent
 * gunicorn
 
 ## Implementations
@@ -22,10 +24,17 @@ http://graphics.cs.cmu.edu/projects/scene-completion/
   [Python wrapper](https://github.com/yuichiroTCY/lear-gist-python)
   for [Lear's GIST implementation](http://lear.inrialpes.fr/software).
 
-### Graphcut
-http://www.cc.gatech.edu/cpl/projects/graphcuttextures/
-* Use the Python implementation:
-  [PyMaxFlow](http://pmneila.github.io/PyMaxflow/index.html)
+
+## TODO
+
+1. Implement graphcut algorithm:
+    - http://www.cc.gatech.edu/cpl/projects/graphcuttextures/
+    - Use the Python implementation?:
+      [PyMaxFlow](http://pmneila.github.io/PyMaxflow/index.html)
+2. Implement the edge case for Poisson blending.
+3. Speed up - use Cython for Poisson blending?
+4. More image data.
+5. Better handling of errors.
 
 <!---
 ## Google image search
