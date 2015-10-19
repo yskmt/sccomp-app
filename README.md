@@ -14,27 +14,37 @@ gunicorn --worker-class socketio.sgunicorn.GeventSocketIOWorker -t 120 app:app
 
 ## Implementations
 
-http://web.mit.edu/kehinger/www/class/
-http://graphics.cs.cmu.edu/projects/scene-completion/
+* General algorithm of the scene completion is from the paper,
+  ["Scene Completion Using Millions of Photographs"](http://graphics.cs.cmu.edu/projects/scene-completion/)
+  by Hays and Efros.
+* Calculation of GIST descriptor is based on the MATLAB code from the
+GIST paper,
+[Modeling the shape of the scene: a holistic representation of the spatial envelope](http://people.csail.mit.edu/torralba/code/spatialenvelope/)
+by Oliva and Torralba.
+* Poisson image blending is based on the algorithm described in the
+  paper,
+  ["Poisson Image Editing"](https://www.cs.jhu.edu/~misha/Fall07/Papers/Perez03.pdf)
+  by Perez, Gangnet and Blake.
+* Graphcut algorithm will be implemented.
 
-### GIST
 
-* Use my own GIST implementation form the [original GIST paper](http://people.csail.mit.edu/torralba/code/spatialenvelope/).
-* Other implementation:
-  [Python wrapper](https://github.com/yuichiroTCY/lear-gist-python)
-  for [Lear's GIST implementation](http://lear.inrialpes.fr/software).
+## Dataset
 
+* Used
+["8 Scene Categories Dataset"](http://people.csail.mit.edu/torralba/code/spatialenvelope/spatial_envelope_256x256_static_8outdoorcategories.zip),
+which consists of 2600 color images with 256x256 pixels.
 
 ## TODO
 
-1. Implement graphcut algorithm:
+1. Implement the edge case for Poisson blending.
+2. Implement graphcut algorithm:
     - http://www.cc.gatech.edu/cpl/projects/graphcuttextures/
     - Use the Python implementation?:
       [PyMaxFlow](http://pmneila.github.io/PyMaxflow/index.html)
-2. Implement the edge case for Poisson blending.
 3. Speed up - use Cython for Poisson blending?
-4. More image data.
+4. User larger dataset.
 5. Better handling of errors.
+
 
 <!---
 ## Google image search
